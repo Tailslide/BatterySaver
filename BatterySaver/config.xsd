@@ -1,0 +1,224 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+   <!-- Xml Definition -->
+   <xs:element name="profiles">
+      <xs:annotation>
+         <xs:documentation>One or more profiles are defined here.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="profile" minOccurs="1" maxOccurs="unbounded" type="profile" />
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <!-- Profile -->
+   <xs:complexType name="profile">
+      <xs:annotation>
+         <xs:documentation>A profile is a named definition of event handlers</xs:documentation>
+      </xs:annotation>
+      <xs:sequence>
+         <xs:element name="eventHandlers" maxOccurs="1" minOccurs="1" type="events" />
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string" use="required" />
+      <xs:attribute name="default" type="xs:boolean" use="required" />
+   </xs:complexType>
+
+   <!-- Events -->
+   <xs:complexType name="events">
+      <xs:sequence>
+         <xs:element name="switchToBattery" maxOccurs="1" minOccurs="0" type="event">
+            <xs:annotation>
+               <xs:documentation>The event that is fired when switching from AC to batter.</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="switchToAc" maxOccurs="1" minOccurs="0" type="event">
+            <xs:annotation>
+               <xs:documentation>The event that is fired when switching from battery to AC.</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="batteryPercentIncreased" maxOccurs="1" minOccurs="0" type="event">
+            <xs:annotation>
+               <xs:documentation>The event that is fired when the battery power increases by one percent.</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element name="batteryPercentDecreased" maxOccurs="1" minOccurs="0" type="event">
+            <xs:annotation>
+               <xs:documentation>The event that is fired when the battery power decreases by one percent.</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:complexType>
+
+   <!-- Event Actions -->
+   <xs:complexType name="event">
+      <xs:annotation>
+         <xs:documentation>The actions defined here will be executed when this event is fired.</xs:documentation>
+      </xs:annotation>
+      <xs:sequence>
+         <xs:element name="action" maxOccurs="unbounded" minOccurs="0" type="genericAction"/>
+         <xs:element name="ControlDevice" maxOccurs="unbounded" minOccurs="0" type="controlDeviceAction"/>
+         <xs:element name="ControlService" maxOccurs="unbounded" minOccurs="0" type="controlServiceAction"/>
+         <xs:element name="KillProcess" maxOccurs="unbounded" minOccurs="0" type="killProcessAction"/>
+         <xs:element name="StartProcess" maxOccurs="unbounded" minOccurs="0" type="startProcessAction"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <!--
+   ## Action Element Definitions ##
+   -->
+   <!-- Action: Control Device -->
+   <xs:complexType name="controlDeviceAction">
+      <xs:complexContent>
+         <xs:restriction base="baseAction">
+            <xs:attribute name="action" type="enableActionOption" use="required" />
+            <xs:attribute name="deviceClassId" type="guid" use="required" />
+            <xs:attribute name="deviceInstanceId" type="xs:string" use="required" />
+         </xs:restriction>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <!-- Action: Control Service -->
+   <xs:complexType name="controlServiceAction">
+      <xs:complexContent>
+         <xs:restriction base="baseAction">
+            <xs:attribute name="action" type="enableActionOption" use="required" />
+            <xs:attribute name="serviceName" type="xs:string" use="required" />
+         </xs:restriction>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <!-- Action: Start Process -->
+   <xs:complexType name="startProcessAction">
+      <xs:complexContent>
+         <xs:restriction base="baseAction">
+            <xs:attribute name="processName" type="xs:string" use="required" />
+            <xs:attribute name="workingDirectory" type="xs:string" use="required" />
+         </xs:restriction>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <!-- Action: Kill Process -->
+   <xs:complexType name="killProcessAction">
+      <xs:complexContent>
+         <xs:restriction base="baseAction">
+            <xs:attribute name="processName" type="xs:string" use="required" />
+         </xs:restriction>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <!-- A generic action - backwards compatible with version 0.4 and allows for extensibility -->
+   <xs:complexType name="genericAction">
+      <xs:complexContent>
+         <xs:restriction base="baseAction">
+            <xs:attribute name="type" type="actionType" use="required" />
+            <xs:attribute name="processName" type="xs:string" use="optional" />
+            <xs:attribute name="workingDirectory" type="xs:string" use="optional" />
+            <xs:attribute name="action" type="genericActionOption" use="optional" />
+            <xs:attribute name="deviceClassId" type="guid" use="optional" />
+            <xs:attribute name="deviceInstanceId" type="xs:string" use="optional" />
+            <xs:attribute name="serviceName" type="xs:string" use="optional" />
+            <xs:anyAttribute/>
+         </xs:restriction>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <!-- Base Action; All actions can have a battery threshold -->
+   <xs:complexType name="baseAction" abstract="true">
+      <xs:attribute name="batteryPercentMin" type="percent" use="optional">
+         <xs:annotation>
+            <xs:documentation>The action is will be executed if, and only if, the battery level (in percent) is ABOVE this value when the event is fired.</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="batteryPercentMax" type="percent" use="optional">
+         <xs:annotation>
+            <xs:documentation>The action is will be executed if, and only if, the battery level (in percent) is BELOW this value when the event is fired.</xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:anyAttribute/>
+   </xs:complexType>
+
+   <!--
+   ## Action Types ##
+   -->
+   <!-- Default enumeration of the "type" attribute on the action element.  Allows for "intellisense" in most editors -->
+   <xs:simpleType name="actionType">
+      <xs:annotation>
+         <xs:documentation>Options for the action attribute on an action element.  Can be one of the values in the enumeration or any value (to accomodate plugins).</xs:documentation>
+      </xs:annotation>
+      <xs:union>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:enumeration value="ControlDevice"/>
+               <xs:enumeration value="ControlService"/>
+               <xs:enumeration value="KillProcess"/>
+               <xs:enumeration value="StartProcess"/>
+            </xs:restriction>
+         </xs:simpleType>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:pattern value="[a-zA-Z]+"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:union>
+   </xs:simpleType>
+
+   <!--
+   ## Action Options ##
+   -->
+   <!-- All possible "action" attribute values -->
+   <xs:simpleType name="genericActionOption">
+      <xs:annotation>
+         <xs:documentation>Options for the action attribute on an action element</xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="start"/>
+         <xs:enumeration value="stop"/>
+         <xs:enumeration value="enable"/>
+         <xs:enumeration value="disable"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <!-- Enable/Disable "action" attribute values -->
+   <xs:simpleType name="enableActionOption">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="enable"/>
+         <xs:enumeration value="disable"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <!-- Start/Stop "action" attribute values -->
+   <xs:simpleType name="startActionOption">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="start"/>
+         <xs:enumeration value="stop"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <!--
+   ## Basic Data Types ##
+   -->
+   <xs:simpleType name="percent">
+      <xs:annotation>
+         <xs:documentation>
+            A non-fractional percent value from 0-100
+         </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:byte">
+         <xs:minInclusive value="0"/>
+         <xs:maxInclusive value="100"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="guid">
+      <xs:annotation>
+         <xs:documentation>
+            A GUID in the form of {12345678-9abc-def1-2345-6789abcdef12}
+         </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:string">
+         <xs:pattern value="{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}}" />
+      </xs:restriction>
+   </xs:simpleType>
+</xs:schema>

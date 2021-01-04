@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This is an example configuration file -->
+<profiles>
+  <profile name="StartStopVeeam" default="True">
+    <eventHandlers>
+      <switchToBattery>
+        <action type="ControlService" serviceName="VeeamEndpointBackupSvc" action="Stop" description="Stop Veeam" batteryPercentMin="0" batteryPercentMax="100" />
+      </switchToBattery>
+      <switchToAc>
+        <action type="ControlService" serviceName="VeeamEndpointBackupSvc" action="Start" description="Start Veeam" batteryPercentMin="0" batteryPercentMax="100" />
+      </switchToAc>
+      <batteryPercentIncreased />
+      <batteryPercentDecreased />
+    </eventHandlers>
+  </profile>
+   <profile name="Default">
+      <eventHandlers>
+         
+         <switchToBattery>
+            <!-- Perform these actions when switching from AC to battery -->
+            
+            <action type="KillProcess" processName="msseces.exe" />
+            <action type="KillProcess" processName="Dropbox.exe" />
+            <action type="KillProcess" processName="Launchy.exe" />
+            <action type="KillProcess" processName="Ditto.exe" />
+
+            <action type="ControlDevice" action="disable" deviceClassId="{4d36e972-e325-11ce-bfc1-08002be10318}" deviceInstanceId="PCI\VEN_14E4&amp;DEV_4311&amp;SUBSYS_00071028&amp;REV_01\4&amp;48E63A8&amp;0&amp;00E1"/>
+
+            <action type="ControlService" action="stop" serviceName="Windows Search" />
+            <action type="ControlService" action="stop" serviceName="Windows Update" />
+            <action type="ControlService" action="stop" serviceName="Windows Backup" />
+            <action type="ControlService" action="stop" serviceName="SSDP Discovery" />
+            <action type="ControlService" action="stop" serviceName="Microsoft Antimalware Service" />
+            <action type="ControlService" action="stop" serviceName="HomeGroup Listener" />
+            <action type="ControlService" action="stop" serviceName="HomeGroup Provider" />
+            <action type="ControlService" action="stop" serviceName="WMPNetworkSvc" />
+        
+         </switchToBattery>
+         
+         <switchToAc>
+            <!-- Perform these actions when switching from battery to AC -->
+            <!--
+            <action type="StartProcess" processName="msseces.exe" workingDirectory="C:\Program Files\Microsoft Security Essentials" />
+            <action type="StartProcess" processName="Dropbox.exe" workingDirectory="C:\Users\ryane\AppData\Roaming\Dropbox\bin" />
+            <action type="StartProcess" processName="Ditto.exe" workingDirectory="C:\Program Files\Ditto" />
+            <action type="StartProcess" processName="Launchy.exe" workingDirectory="C:\Program Files\Launchy" />
+
+            <action type="ControlDevice" action="enable" deviceClassId="{4d36e972-e325-11ce-bfc1-08002be10318}" deviceInstanceId="PCI\VEN_14E4&amp;DEV_4311&amp;SUBSYS_00071028&amp;REV_01\4&amp;48E63A8&amp;0&amp;00E1"/>
+
+            <action type="ControlService" action="start" serviceName="Windows Search" />
+            <action type="ControlService" action="start" serviceName="Windows Update" />
+            <action type="ControlService" action="start" serviceName="Windows Backup" />
+            <action type="ControlService" action="start" serviceName="SSDP Discovery" />
+            <action type="ControlService" action="start" serviceName="Microsoft Antimalware Service" />
+            <action type="ControlService" action="start" serviceName="HomeGroup Listener" />
+            <action type="ControlService" action="start" serviceName="HomeGroup Provider" />
+            <action type="ControlService" action="start" serviceName="WMPNetworkSvc" />
+            -->
+         </switchToAc>
+         
+         <batteryPercentIncreased>
+            <!-- Perform these action when the battery power increases by one percent -->
+         </batteryPercentIncreased>
+
+         <batteryPercentDecreased>
+            <!-- Perform these action when the battery power decreases by one percent -->
+         </batteryPercentDecreased>
+      </eventHandlers>
+   </profile>
+
+   <profile name="ToggleWifi" default="false">
+      <eventHandlers>
+         <switchToBattery>
+            <!-- 
+            <action type="ControlDevice" action="disable" deviceClassId="{4d36e972-e325-11ce-bfc1-08002be10318}" deviceInstanceId="PCI\VEN_14E4&amp;DEV_4311&amp;SUBSYS_00071028&amp;REV_01\4&amp;48E63A8&amp;0&amp;00E1"/>
+            -->
+         </switchToBattery>
+         <switchToAc>
+            <!--
+            <action type="ControlDevice" action="enable" deviceClassId="{4d36e972-e325-11ce-bfc1-08002be10318}" deviceInstanceId="PCI\VEN_14E4&amp;DEV_4311&amp;SUBSYS_00071028&amp;REV_01\4&amp;48E63A8&amp;0&amp;00E1"/>
+            -->
+         </switchToAc>
+      </eventHandlers>
+   </profile>
+</profiles>
