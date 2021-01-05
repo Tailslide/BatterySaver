@@ -5,9 +5,14 @@
     <eventHandlers>
       <switchToBattery>
         <action type="ControlService" serviceName="VeeamEndpointBackupSvc" action="Stop" description="Stop Veeam" batteryPercentMin="0" batteryPercentMax="100" />
+        <action type="KillProcess" processName="DellMobileConnectClient.exe" description="Kill dell mobile connect" batteryPercentMin="0" batteryPercentMax="100" />
+        <action type="KillProcess" processName="lync.exe" description="Kill lync" batteryPercentMin="0" batteryPercentMax="100" />
+        <action type="KillProcess" processName="DellMobileConnectUniversalClient.exe" description="kill dell universal client" batteryPercentMin="0" batteryPercentMax="100" />
+        <action type="KillProcess" processName="steam.exe" description="Kill steam" batteryPercentMin="0" batteryPercentMax="100" />
       </switchToBattery>
       <switchToAc>
         <action type="ControlService" serviceName="VeeamEndpointBackupSvc" action="Start" description="Start Veeam" batteryPercentMin="0" batteryPercentMax="100" />
+        <action type="StartProcess" processName="startAcApps.bat" workingDirectory="c:\batchfiles" arguments="" allowMultiple="False" description="Start AC Apps" batteryPercentMin="0" batteryPercentMax="100" />
       </switchToAc>
       <batteryPercentIncreased />
       <batteryPercentDecreased />

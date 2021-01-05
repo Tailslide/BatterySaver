@@ -46,7 +46,7 @@ namespace BatterySaver.Lib.Service
    public class ProfileService
    {
       private readonly ConfigurationReader _configuration;
-
+       public bool LogToFile { get; set; } = false;
       /// <summary>
       ///    Initializes a new instance of the <see cref = "ProfileService" /> class.
       /// </summary>
@@ -54,6 +54,7 @@ namespace BatterySaver.Lib.Service
       public ProfileService( ConfigurationReader configuration )
       {
          _configuration = configuration;
+         LogToFile = configuration.GetLogToFile();
       }
 
       /// <summary>
@@ -74,6 +75,11 @@ namespace BatterySaver.Lib.Service
       {
          var profileList = _configuration.GetProfiles();
          return profileList.FirstOrDefault( p => p.ProfileName == profileName );
+      }
+
+      public void LoadLogSetting()
+      {
+            LogToFile = _configuration.GetLogToFile();
       }
 
       /// <summary>

@@ -134,6 +134,15 @@ namespace BatterySaver.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &amp;Log to File.
+        /// </summary>
+        internal static string String_Log_To_File {
+            get {
+                return ResourceManager.GetString("String_Log_To_File", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to BatterySaver Profile &quot;{0}&quot; Loaded.
         /// </summary>
         internal static string String_ProfileLoaded {

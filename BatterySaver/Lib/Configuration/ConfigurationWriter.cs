@@ -92,10 +92,22 @@ namespace BatterySaver.Lib.Configuration
          {
             rootNode.AppendChild( CreateProfileNode( rootNode, profile ) );
          }
+         rootNode.AppendChild(CreateLogNode(rootNode, _profileService.LogToFile));
          return xmlDocument;
       }
 
-      private static XmlElement CreateProfileNode( XmlNode parentNode, Profile profile )
+        private static XmlElement CreateLogNode(XmlNode parentNode, bool dolog)
+        {
+            var document = parentNode.OwnerDocument;
+
+            // Build the profile node
+            var profileNode = document.CreateNode(XmlNodeType.Element, "LogToFile", NAMESPACE_URI) as XmlElement;
+            profileNode.SetAttribute("enabled", dolog.ToString());
+            return profileNode;
+        }
+
+
+        private static XmlElement CreateProfileNode( XmlNode parentNode, Profile profile )
       {
          var document = parentNode.OwnerDocument;
 

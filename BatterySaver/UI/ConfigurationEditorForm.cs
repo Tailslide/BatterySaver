@@ -81,15 +81,14 @@ namespace BatterySaver.UI
          Icon = Resources.Icon_Application;
          saveButton.Text = Resources.String_SaveButton;
          cancelButton.Text = Resources.String_CancelButton;
-
+         chkLogToFile.Text = Resources.String_Log_To_File;
          // Group boxes
          profileListGroupBox.Text = ProfileEditorResources.String_ProfileListTitle;
-
+         chkLogToFile.Checked = _profileService.LogToFile;
          // Configure the profile list
          profileListTreeView.ProfileList = _profileService.GetProfileList();
          profileListTreeView.AfterSelect += ProfileListTreeViewAfterSelect;
-         ProfileListTreeViewAfterSelect( null, null );
-
+         ProfileListTreeViewAfterSelect( null, null );         
          ResumeLayout();
       }
 
@@ -135,5 +134,11 @@ namespace BatterySaver.UI
             Close();
          }
       }
-   }
+
+        private void chkLogToFile_CheckedChanged(object sender, EventArgs e)
+        {
+            if (this.Visible)
+                _profileService.LogToFile = chkLogToFile.Checked;
+        }
+    }
 }

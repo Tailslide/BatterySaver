@@ -86,10 +86,11 @@ namespace BatterySaver
       {
          // Initialize the profile service
          var profileService = ReadConfiguration( configurationFile );
+        profileService.LoadLogSetting();
 
-         // Kill any other running copies - this allows the user to rerun the app to 
-         // reload the configuration
-         KillOtherCopies();
+        // Kill any other running copies - this allows the user to rerun the app to 
+        // reload the configuration
+        KillOtherCopies();
 
          // Wire up power change delegate
          Profile activeProfile = GetActiveProfile( profileService, requestedProfileName );
@@ -184,7 +185,8 @@ namespace BatterySaver
          var version = executingAssembly.GetName().Version;
          return string.Format( "{0} v{1}.{2}.{3}", executingAssembly.GetName().Name, version.Major, version.Minor, version.Revision );
       }
-
+      
+     
       private static Profile GetActiveProfile( ProfileService profileService, string requestedProfileName )
       {
          var profile = string.IsNullOrEmpty( requestedProfileName ) ? profileService.LoadDefaultProfile() : profileService.LoadNamedProfile( requestedProfileName );

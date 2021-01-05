@@ -48,6 +48,7 @@ namespace BatterySaver.Lib.Configuration
    /// </summary>
    public class ConfigurationReader
    {
+      private const string XPATH_LOG = "/profiles/LogToFile";
       private const string XPATH_PROFILES = "/profiles/profile";
       private const string XPATH_EVENTHANDLER_ACTION = "eventHandlers/{0}/*";
 
@@ -70,7 +71,23 @@ namespace BatterySaver.Lib.Configuration
       public void LoadConfiguration()
       {
          GetXml();
+         GetLogToFile();
       }
+      
+      public bool GetLogToFile()
+      {
+            var logNode = GetXml().SelectSingleNode(XPATH_LOG);
+            if (logNode != null)
+            {
+                var enabled = logNode.Attributes["enabled"];
+                if (enabled != null)
+                {
+                    return bool.Parse(enabled.Value);
+                }
+                else return false;
+            }
+            else return false;
+        }
 
       /// <summary>
       ///    Gets the profiles from the configuration
