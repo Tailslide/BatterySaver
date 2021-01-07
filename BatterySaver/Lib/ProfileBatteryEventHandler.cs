@@ -53,6 +53,7 @@ namespace BatterySaver.Lib
       private SystemPowerStatus _lastKnownState;
       private IBatteryService _batteryService;
       private EventType? _lastEvent;
+      private EventType? _lastPowerEvent;
       private static Thread _monitorThread;
 
       /// <summary>
@@ -70,24 +71,31 @@ namespace BatterySaver.Lib
       /// <param name = "batteryService">The battery service.</param>
       public void HandlePowerStateChange( IBatteryService batteryService )
       {
-         // State change, make sure we're in a valid state
-         if ( batteryService.IsValidState )
-         {
-            EventType eventType = EventType.SwitchToBattery;
-            if ( batteryService.OnAcPower )
+            // State change, make sure we're in a valid state
+            if (batteryService.IsValidState)
             {
-               eventType = EventType.SwitchToAc;
+                if (_lastPowerEvent ==null 
+                    // FSIGAP - just keep track of ac state changes.. battery level changes were causing battery/AC code to run
+                     || _lastPowerEvent == EventType.SwitchToAc && batteryService.OnBattery // changed from ac to on battery
+                     || _lastPowerEvent == EventType.SwitchToBattery && batteryService.OnAcPower // changes from battery to on ac
+                     )
+                {
+                    EventType eventType;
+                    if (batteryService.OnAcPower)
+                        eventType = EventType.SwitchToAc;
+                    else
+                        eventType= EventType.SwitchToBattery;
+
+                    // Check the event state
+                    //ProcessStateChange(eventType);
+                    _lastPowerEvent = eventType;
+                    // Execute all of the actions for this event if they are within the threshold
+                    var batteryLifePercent = batteryService.GetSystemPowerStatus().BatteryLifePercent;
+                    _profile.GetActionsForEvent(eventType)
+                       .TakeWhile(a => batteryLifePercent >= (a.BatteryPercentMin) && batteryLifePercent <= (a.BatteryPercentMax))
+                       .Each(a => a.Execute());
+                }
             }
-
-            // Check the event state
-            ProcessStateChange( eventType );
-
-            // Execute all of the actions for this event if they are within the threshold
-            var batteryLifePercent = batteryService.GetSystemPowerStatus().BatteryLifePercent;
-            _profile.GetActionsForEvent( eventType )
-               .TakeWhile( a => batteryLifePercent >= ( a.BatteryPercentMin ) && batteryLifePercent <= ( a.BatteryPercentMax ) )
-               .Each( a => a.Execute() );
-         }
       }
 
       /// <summary>
@@ -136,9 +144,13 @@ namespace BatterySaver.Lib
          {
             // Save the battery service
             _batteryService = batteryService;
+                if (batteryService.OnAcPower)
+                    _lastPowerEvent = EventType.SwitchToAc;
+                else
+                    _lastPowerEvent = EventType.SwitchToBattery;
 
-            // Create monitoring thread
-            var threadStart = new ThreadStart( MonitorBatteryLevel );
+                // Create monitoring thread
+                var threadStart = new ThreadStart( MonitorBatteryLevel );
             _monitorThread = new Thread( threadStart ) { Name = "Batter State Monitor - BW Worker" };
             _monitorThread.Start();
          }

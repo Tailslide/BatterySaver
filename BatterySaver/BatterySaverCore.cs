@@ -61,7 +61,7 @@ namespace BatterySaver
       private static readonly IBatteryService _batteryService;
       private static string _lastConfigurationFile;
       private static string _lastProfile;
-
+      private static bool LogToFile { get; set; } = false;
       static BatterySaverCore()
       {
          _batteryService = new BatteryService();
@@ -73,21 +73,27 @@ namespace BatterySaver
                                               SystemTray.Instance.Dispose();
                                            };
       }
+      private static void reloadConfig()
+    {
+        var profileService = ReadConfiguration(_lastConfigurationFile);
+        profileService.LoadLogSetting();
+        LogToFile = profileService.LogToFile;
 
-      /// <summary>
-      ///    Initializes the application with the specified configuration file.
-      /// </summary>
-      /// <remarks>
-      ///    This method needs to be callable multiple times since it is called by "reload" actions.
-      /// </remarks>
-      /// <param name = "configurationFile">The configuration file.</param>
-      /// <param name = "requestedProfileName">Name of the requested profile.</param>
-      public static void Initialize( string configurationFile, string requestedProfileName )
+    }
+        /// <summary>
+        ///    Initializes the application with the specified configuration file.
+        /// </summary>
+        /// <remarks>
+        ///    This method needs to be callable multiple times since it is called by "reload" actions.
+        /// </remarks>
+        /// <param name = "configurationFile">The configuration file.</param>
+        /// <param name = "requestedProfileName">Name of the requested profile.</param>
+        public static void Initialize( string configurationFile, string requestedProfileName )
       {
          // Initialize the profile service
          var profileService = ReadConfiguration( configurationFile );
         profileService.LoadLogSetting();
-
+        LogToFile = profileService.LogToFile;
         // Kill any other running copies - this allows the user to rerun the app to 
         // reload the configuration
         KillOtherCopies();
@@ -167,7 +173,7 @@ namespace BatterySaver
          SystemTray.Instance.DispatchTable.Add( new KeyValuePair<string, Action>( "-", null ) );
 
          // Options..
-         SystemTray.Instance.DispatchTable.Add( new KeyValuePair<string, Action>( Resources.String_DisplayConfigurationEditor, () => new ConfigurationEditorForm( ReadConfiguration( _lastConfigurationFile ) ).Visible = true ) );
+         SystemTray.Instance.DispatchTable.Add( new KeyValuePair<string, Action>( Resources.String_DisplayConfigurationEditor, () => { new ConfigurationEditorForm(ReadConfiguration(_lastConfigurationFile)).Visible = true; reloadConfig(); }) );
          SystemTray.Instance.DispatchTable.Add( new KeyValuePair<string, Action>( "-", null ) );
 
          // Exit
@@ -199,7 +205,9 @@ namespace BatterySaver
 
       private static void OnSystemEventsOnPowerModeChanged( object sender, PowerModeChangedEventArgs e )
       {
-         if ( e.Mode == PowerModes.StatusChange )
+          if (LogToFile) _batteryService.LogSystemPowerStatus(e.Mode);
+
+            if ( e.Mode == PowerModes.StatusChange )
          {
             _profileBatteryEventHandler.HandlePowerStateChange( _batteryService );
          }

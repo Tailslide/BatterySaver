@@ -35,6 +35,7 @@ using System;
 using System.Runtime.InteropServices;
 
 using BatterySaver.Lib.Utility;
+using Microsoft.Win32;
 
 namespace BatterySaver.Lib.Service
 {
@@ -54,10 +55,16 @@ namespace BatterySaver.Lib.Service
          return powerStatus;
       }
 
-      /// <summary>
-      /// Gets the value indicating whether or not the system is running on battery
-      /// </summary>
-      public bool OnBattery
+      public void LogSystemPowerStatus(PowerModes e)
+        {
+            LogWriter.LogWrite(SystemPowerStatusToString(GetSystemPowerStatus()) + " PowerMode:" + e.ToString());
+
+        }
+
+        /// <summary>
+        /// Gets the value indicating whether or not the system is running on battery
+        /// </summary>
+        public bool OnBattery
       {
          get { return GetSystemPowerStatus().ACLineStatus != AcLineStatus.Online; }
       }
@@ -81,10 +88,21 @@ namespace BatterySaver.Lib.Service
          get
          {
             var powerStatus = GetSystemPowerStatus();
-            return powerStatus.ACLineStatus != AcLineStatus.Unknown && Enum.IsDefined( typeof( BatteryFlag ), powerStatus.BatteryFlag );
+                return powerStatus.ACLineStatus != AcLineStatus.Unknown; // FSIGAP - this isn't correct code.. flags are OR'd together  && Enum.IsDefined( typeof( BatteryFlag ), powerStatus.BatteryFlag );
          }
       }
-   }
+
+      private string SystemPowerStatusToString( SystemPowerStatus s)
+        {
+            return
+                  "ACLineStatus: " + s.ACLineStatus.ToString()
+                + "BatteryFlag: " + s.BatteryFlag.ToString()
+                + "BatteryFullLifeTime: " + s.BatteryFullLifeTime.ToString()
+                + "BatteryLifePercent: " + s.BatteryLifePercent.ToString()
+                + "BatteryLifeTime: " + s.BatteryLifeTime.ToString()
+                + "Reserved1: " + s.Reserved1.ToString();
+        }
+    }
 
    /// <summary>
    /// The AC Line status

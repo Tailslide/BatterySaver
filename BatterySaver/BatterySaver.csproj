@@ -119,6 +119,7 @@
     <Compile Include="Lib\Configuration\ConfigurationWriter.cs" />
     <Compile Include="Lib\Extensions\StringExtensions.cs" />
     <Compile Include="Lib\Extensions\XmlNodeExtensions.cs" />
+    <Compile Include="Lib\LogWriter.cs" />
     <Compile Include="Lib\ProfileBatteryEventHandler.cs" />
     <Compile Include="Lib\Configuration\ConfigurationReader.cs" />
     <Compile Include="Lib\EventType.cs" />

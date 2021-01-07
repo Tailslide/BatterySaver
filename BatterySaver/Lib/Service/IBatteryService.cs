@@ -1,4 +1,6 @@
-﻿namespace BatterySaver.Lib.Service
+﻿using Microsoft.Win32;
+
+namespace BatterySaver.Lib.Service
 {
    public interface IBatteryService
    {
@@ -20,10 +22,12 @@
       /// </value>
       bool IsValidState { get; }
 
+        void LogSystemPowerStatus(PowerModes e);
+
       /// <summary>
       /// Gets the detailed system power status
       /// </summary>
       /// <returns>A <see cref="SystemPowerStatus"/></returns>
-      SystemPowerStatus GetSystemPowerStatus();
+        SystemPowerStatus GetSystemPowerStatus();
    }
 }
